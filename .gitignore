@@ -1,0 +1,10 @@
+# colcon outputs
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/

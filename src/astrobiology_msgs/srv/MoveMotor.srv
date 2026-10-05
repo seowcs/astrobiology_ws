@@ -1,0 +1,7 @@
+uint8   motor        # 1-3, or 0 for all
+bool    forward
+uint32  steps
+uint32  speed_us     # 0 = use default
+---
+bool    accepted
+string  message

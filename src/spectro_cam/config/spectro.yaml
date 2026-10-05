@@ -1,0 +1,46 @@
+# Parameters for spectro_cam/spectrum_node. Defaults follow spectro-cam-rs (src/config.rs).
+# All of these can also be changed live: ros2 param set /spectro/spectrum_node <name> <value>
+/**:
+  ros__parameters:
+    # Camera. `device` may also be an image or video file, which is looped as a fake camera.
+    device: /dev/spectroscope  # udev alias for the Sonix spectroscope camera on the Pi
+    frame_width: 1920        # use the lowest resolution that still gives enough spectral pixels;
+    frame_height: 1080       # MJPEG decoding is the main CPU cost on a Pi 4
+    fps: 30
+    fourcc: MJPG             # MJPG | YUYV | "" (camera default)
+    # Applied with v4l2-ctl, in order, every time the camera opens (they reset on unplug/reboot).
+    # Manual exposure first, then the exposure time in 0.1 ms units (<= 330 to keep 30 fps).
+    # List a camera's controls with: v4l2-ctl -d <device> --list-ctrls
+    v4l2_controls: "auto_exposure=1,exposure_dynamic_framerate=0,white_balance_automatic=0,backlight_compensation=0,sharpness=1,exposure_time_absolute=50"
+    frame_id: spectrometer
+
+    # Region of interest. Columns become spectrum samples, rows are summed.
+    # Coordinates refer to the flipped image when flip is true.
+    roi_x: 0                 # full width, band position measured from the preview
+    roi_y: 530
+    roi_width: 1920
+    roi_height: 40
+    flip: true
+
+    # Wavelength calibration: two ROI columns with known wavelengths.
+    # NOT CALIBRATED YET: these are spectro-cam-rs defaults (436/546 nm Hg lines of a fluorescent
+    # lamp). Replace with columns measured from an RGB LED, lasers or a fluorescent lamp.
+    low_wavelength: 436.0
+    low_index: 261
+    high_wavelength: 546.0
+    high_index: 486
+
+    # Postprocessing
+    linearize: "off"         # off | rec601 | rec709 | srgb
+    gain_r: 1.0
+    gain_g: 1.0
+    gain_b: 1.0
+    buffer_size: 30          # frames averaged (1..100 in spectro-cam-rs)
+    filter_active: false
+    filter_cutoff: 0.5       # relative to Nyquist, 0.001..1
+    peaks_find_window: 20    # samples on each side
+    peaks_unique_window: 50.0  # nm
+
+    # Output
+    max_publish_rate_hz: 15.0  # 0 publishes every frame
+    preview_rate_hz: 0.0       # > 0 publishes /spectro/preview/compressed for setting up the ROI
